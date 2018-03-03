@@ -7,10 +7,10 @@ La clés les starts etc...
 #
 #
 #
-Pour lancer le serveur faite un :
-cd /home/gta5/server-data/
-bash /home/gta5/run.sh +exec server.cfg
+#Pour lancer le serveur faite un :
+#cd /home/gta5/server-data/
+#bash /home/gta5/run.sh +exec server.cfg
 ########
 
-Un discord est dispo pour toute question ou autre ! 
-https://ocb.re
+                
+#http://ocb.re Un discord est dispo pour toute question ou autre ! 
