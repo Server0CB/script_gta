@@ -1,7 +1,8 @@
 <h4>Ne pas oublier de modifier votre fichier **server.cfg** qui est situé dans **/home/gta5/server-data/server.cfg** </h4>
 * La keys les starts etc...
 
-* **Pour lancer le serveur faite un :**
+* **Pour lancer le serveur faite un : apt-get install git (si pas git)**
+*
 * cd /home/gta5/server-data/
 * bash /home/gta5/run.sh +exec server.cfg
 
