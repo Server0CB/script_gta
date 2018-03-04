@@ -1,5 +1,5 @@
-<h4>Ne pas oublier de modifier votre fichier **server.cfg** qui est situé dans **/home/gta5/server-data/server.cfg** </h4>
-* La keys les starts etc...
+<h4>Ne pas oublier de modifier votre fichier **server.cfg** qui est situé dans **/home/$USER/server-data/server.cfg** </h4>
+* La key, les starts etc...
 
 * **Pour lancer le serveur faite un : apt-get install git (si pas git)**
 * git clone https://github.com/Server0CB/script_gta.git
@@ -13,8 +13,8 @@
 
 * puis a la fin finir avec :
 
-* cd /home/gta5/server-data/
-* bash /home/gta5/run.sh +exec server.cfg
+* cd /home/$USER/server-data/
+* bash /home/$USER/run.sh +exec server.cfg
 
                
 * **Un discord est dispo pour toute question ou autre !** https://ocb.re
