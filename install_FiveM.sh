@@ -2,6 +2,7 @@
 #V0.2
 #https://ocb.re rejoignez le discord !
 #####
+PUBLIC_IP=$(command wget -qO- 'http://ipecho.net/plain')
 
 fullExit() {
 	cat << EOF
@@ -94,16 +95,18 @@ echo "Installation terminer vous avez votre base de fiveM !"
 echo "Votre nom d'utilisateur est" $USER "N'oubliez pas de lancer FiveM avec cette utilisateur !"
 echo
 echo
+echo "votre IP public est" "${PUBLIC_IP}"
 echo "Pour lancer le serveur :"
 echo "Faut faire un su" $USER
 echo "puis un cd /home/"$USER"/server-data"
 echo "puis bash /home/"$USER"/run.sh +exec server.cfg"
 echo
 echo
-echo
-echo
-echo "Ne pas oubliez de mofidier la key pas le votre dans votre server.cfg !!!!"
+echo "Ne pas oubliez de mofidier la key, par le votre, dans votre server.cfg !!!!"
 echo "Le serveur.cfg se situe dans /home/"$USER"/server-data"
+echo
+echo
+echo
 echo "Toute question rejoignez discord sur https://ocb.re !"
 echo
 echo "---------------------------------------------------------------------------------------------------"
