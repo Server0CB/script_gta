@@ -98,27 +98,27 @@ wget https://github.com/brouznouf/fivem-mysql-async/archive/v2.0.2.zip
 unzip v2.0.2.zip
 rm -rf v2.0.2.zip
 mv fivem-mysql-async-2.0.2/ mysql-async/
-mkdir /home/$USER/server-data/ressource/[MySQL]
-mv mysql-async/ home/$USER/server-data/ressource/\[MySQL\]/
+mkdir /home/$USER/server-data/resources/[MySQL]
+mv mysql-async/ home/$USER/server-data/resources/\[MySQL\]/
 
 
 wget https://kanersps.pw/files/essential5.zip
 unzip essential5.zip
 rm -rf essential5.zip
-mv es_admin2 essentialmode /home/$USER/server-data/ressource/\[MySQL\]/
+mv es_admin2 essentialmode /home/$USER/server-data/resources/\[MySQL\]/
 
 wget https://kanersps.pw/files/esplugin_mysql.zip
 unzip esplugin_mysql.zip
 rm -rf esplugin_mysql.zip
-mv esplugin_mysql /home/$USER/server-data/ressource/\[MySQL\]/
+mv esplugin_mysql /home/$USER/server-data/resources/\[MySQL\]/
 
 git clone https://github.com/ESX-Org/async.git async
-mv async /home/$USER/server-data/ressource/\[MySQL\]/
+mv async /home/$USER/server-data/resources/\[MySQL\]/
 
 git clone https://github.com/ESX-Org/es_extended.git es_extended
-mv es_extended /home/$USER/server-data/ressource
+mv es_extended /home/$USER/server-data/resources
 
-cd /home/$USER/server-data/ressource/
+cd /home/$USER/server-data/resources/
 git clone https://github.com/ESX-Org/esx_menu_default.git esx_menu_default
 git clone https://github.com/ESX-Org/esx_menu_dialog.git esx_menu_dialog
 git clone https://github.com/ESX-Org/esx_menu_list.git esx_menu_list
@@ -148,9 +148,9 @@ echo "Toute question rejoignez discord sur https://ocb.re !"
 echo
 docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq)
 echo
-echo Pour connecté la base mysql a votre FiveM recuperer l'ip de /root_phpmyadmin_1 est la remplacer par le localhost de votre server.cfg !
+echo "Pour connecté la base mysql a votre FiveM recuperer l'ip de /_phpmyadmin_1 est le remplacer par le localhost de votre server.cfg !"
 echo
-echo regardez dans le dossier /home/$USER/server-data/ressource/\[MySQL\]/ est rajoutez la sql ! esplugin_mysql
-echo n'oubliez pas de rensiegnez les sql !
+echo "regardez dans le dossier /home/$USER/server-data/ressource/\[MySQL\]/ est rajoutez la sql ! esplugin_mysql"
+echo "n'oubliez pas de rensiegnez les sql !"
 echo https://github.com/ESX-Org/es_extended/blob/master/es_extended.sql
 echo "---------------------------------------------------------------------------------------------------"
