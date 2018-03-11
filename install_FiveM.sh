@@ -73,7 +73,7 @@ while [ $con -eq 0 ]; do
 done
 
 
-apt install git wget curl xz-utils screen -y
+apt install git wget curl xz-utils screen unzip docker-compose -y
 apt-get update && apt dist-upgrade -y
 apt-get autoremove -y
 masterfolder="https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/"
@@ -88,15 +88,52 @@ mv /home/$USER/server.cfg /home/$USER/server-data/server.cfg
 cd ..
 chmod -R 777 ./*
 
+curl -fsSL get.docker.com -o get-docker.sh && sh get-docker.sh
+wget https://raw.githubusercontent.com/Server0CB/script_gta/master/docker-compose.yml
+docker-compose up -d
+
+
+
+wget https://github.com/brouznouf/fivem-mysql-async/archive/v2.0.2.zip
+unzip v2.0.2.zip
+rm -rf v2.0.2.zip
+mv fivem-mysql-async-2.0.2/ mysql-async/
+mkdir /home/$USER/server-data/ressource/[MySQL]
+mv mysql-async/ home/$USER/server-data/ressource/\[MySQL\]/
+
+
+wget https://kanersps.pw/files/essential5.zip
+unzip essential5.zip
+rm -rf essential5.zip
+mv es_admin2 essentialmode /home/$USER/server-data/ressource/\[MySQL\]/
+
+wget https://kanersps.pw/files/esplugin_mysql.zip
+unzip esplugin_mysql.zip
+rm -rf esplugin_mysql.zip
+mv esplugin_mysql /home/$USER/server-data/ressource/\[MySQL\]/
+
+git clone https://github.com/ESX-Org/async.git async
+mv async /home/$USER/server-data/ressource/\[MySQL\]/
+
+git clone https://github.com/ESX-Org/es_extended.git es_extended
+mv es_extended /home/$USER/server-data/ressource
+
+cd /home/$USER/server-data/ressource/
+git clone https://github.com/ESX-Org/esx_menu_default.git esx_menu_default
+git clone https://github.com/ESX-Org/esx_menu_dialog.git esx_menu_dialog
+git clone https://github.com/ESX-Org/esx_menu_list.git esx_menu_list
+
 
 echo '-------------------------------------------------------------------------------------------------'
 echo
-echo "Installation terminer vous avez votre base de fiveM !" 
+echo "Installation terminer vous avez votre base de fiveM avec mysql phpmyadmin !" 
 echo "Votre nom d'utilisateur est" $USER "N'oubliez pas de lancer FiveM avec cette utilisateur !"
 echo
 echo
 echo "votre IP public est" "${PUBLIC_IP}"
-echo "Pour lancer le serveur :"
+echo "votre IP phpmyadmin" "${PUBLIC_IP}:8000"
+echo
+echo
 echo "Faut faire un su" $USER
 echo "puis un cd /home/"$USER"/server-data"
 echo "puis bash /home/"$USER"/run.sh +exec server.cfg"
@@ -109,4 +146,11 @@ echo
 echo
 echo "Toute question rejoignez discord sur https://ocb.re !"
 echo
+docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq)
+echo
+echo Pour connecté la base mysql a votre FiveM recuperer l'ip de /root_phpmyadmin_1 est la remplacer par le localhost de votre server.cfg !
+echo
+echo regardez dans le dossier /home/$USER/server-data/ressource/\[MySQL\]/ est rajoutez la sql ! esplugin_mysql
+echo n'oubliez pas de rensiegnez les sql !
+echo https://github.com/ESX-Org/es_extended/blob/master/es_extended.sql
 echo "---------------------------------------------------------------------------------------------------"
