@@ -116,9 +116,10 @@ git clone https://github.com/ESX-Org/async.git async
 mv async /home/$USER/server-data/resources/\[MySQL\]/
 
 git clone https://github.com/ESX-Org/es_extended.git es_extended
-mv es_extended /home/$USER/server-data/resources
+mv es_extended /home/$USER/server-data/resources/
 
-cd /home/$USER/server-data/resources/
+mkdir /home/$USER/server-data/resources/[UI]
+cd /home/$USER/server-data/resources/\[UI\]/
 git clone https://github.com/ESX-Org/esx_menu_default.git esx_menu_default
 git clone https://github.com/ESX-Org/esx_menu_dialog.git esx_menu_dialog
 git clone https://github.com/ESX-Org/esx_menu_list.git esx_menu_list
