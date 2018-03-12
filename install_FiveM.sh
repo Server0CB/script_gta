@@ -90,9 +90,9 @@ cd ..
 chmod -R 777 ./*
 
 #Install docker
-curl -fsSL get.docker.com -o get-docker.sh && sh get-docker.sh
-wget https://raw.githubusercontent.com/Server0CB/script_gta/master/docker-compose.yml
-docker-compose up -d
+#curl -fsSL get.docker.com -o get-docker.sh && sh get-docker.sh
+#wget https://raw.githubusercontent.com/Server0CB/script_gta/master/docker-compose.yml
+#docker-compose up -d
 
 mkdir "/home/$USER/server-data/resources/[MySQL]"
 cd   "/home/$USER/server-data/resources/[MySQL]"
