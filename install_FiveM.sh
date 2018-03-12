@@ -111,6 +111,7 @@ mv fivem-mysql-async-2.0.2/ mysql-async/
 
 mkdir "/home/$USER/server-data/resources/[UI]"
 cd  "/home/$USER/server-data/resources/[UI]"
+git clone https://github.com/ESX-Org/es_extended.git es_extended
 git clone https://github.com/ESX-Org/esx_menu_default.git esx_menu_default
 git clone https://github.com/ESX-Org/esx_menu_dialog.git esx_menu_dialog
 git clone https://github.com/ESX-Org/esx_menu_list.git esx_menu_list
