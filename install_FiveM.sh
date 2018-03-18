@@ -1,47 +1,36 @@
 #!/bin/bash
-#V0.2
+#V0.5
 #https://ocb.re rejoignez le discord !
+#####
 #####
 PUBLIC_IP=$(command wget -qO- 'http://ipecho.net/plain')
 
-fullExit() {
-	cat << EOF
-Contact me: https://ocb.re
-EOF
-	exit 1
-}
-runUserCmd() {
-	su - \$USER -c "\$USER_INIT; \$1" >/dev/null && return 0
-	return 1
-}
-if [ "$(id -u)" != "0" ]; then
-	fullExit "Tournée le script en root (Ou sudo)."
-fi
 
-## License
-echo "
------------------------------------------------------------------------------
-Tout contact sur discord ! http://ocb.re
------------------------------------------------------------------------------"
-echo "Installeur FiveM"
-echo
-echo "y = Choix yes (continues)"
-echo "n = Choix On n'annule avec cette option"
-echo "c = Choix on quitte le script"
-echo "Capital 'Y' or 'N' or 'C' Option par default"
-echo
-read -p "Voulez vous continué ? [Y/n/c] " confirm
-if [[ $confirm =~ ^([cC]|[nN])$ ]]
-then
-    exit 0
+#Seul root peut executer le script
+if [ $UID -ne 0 ] ; then
+        echo "Vous devez etre root pour executer ce script"
+        exit 1
 fi
 ## Generate locales
 locale-gen fr_FR.UTF-8
 dpkg-reconfigure locales
-## Prompting for system user.
+
+#Update de base
+apt update && apt dist-upgrade -y
+apt install git wget curl xz-utils screen unzip apache2 php7.0 php7.0-gd php7.0-curl php7.0-mysql php7.0-mcrypt -y
+apt update
+apt-get autoremove -y
+#expo de l'ip de la machine
+PUBLIC_IP=$(command wget -qO- 'http://ipecho.net/plain')
+
+#Artefact FiveM
+masterfolder="https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/"
+newestfxdata="$(curl $masterfolder | grep '<a href' | tail -1 | awk -F[\>\<] '{print $3}')"
+
+echo -e "${CBLUE} On va crées un nouvelle utilisateur pour lancer notre serveur par la suite ! $CEND"
 con=0
 while [ $con -eq 0 ]; do
-	echo -n "$Enter le nom d'utilisateur : "
+	echo -n " Enter le nom d'utilisateur :"
 	read USER
 
 	if [ -z "$USER" ]; then
@@ -66,49 +55,50 @@ while [ $con -eq 0 ]; do
 		con=1
 	fi
 done
+clear
+echo -e " "
+echo -e "/!\ On va commencer par installer la base de FiveM /!\ "
+echo -e " "
+echo -e "Marquer oui pour lancer le script !"
+read -r PAPA
+echo -e " "
 
-
-
-
-
-
-
-
-apt install git wget curl xz-utils screen unzip docker-compose -y
-apt-get update && apt dist-upgrade -y
-apt-get autoremove -y
-masterfolder="https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/"
-newestfxdata="$(curl $masterfolder | grep '<a href' | tail -1 | awk -F[\>\<] '{print $3}')"
-cd "/home/$USER/" || exit
-wget "${masterfolder}""${newestfxdata}fx.tar.xz"
-tar xf fx.tar.xz
-rm ./fx.tar.xz
-git clone https://github.com/citizenfx/cfx-server-data.git server-data
-wget https://raw.githubusercontent.com/Server0CB/script_gta/master/server.cfg
-mv "/home/$USER/server.cfg" "/home/$USER/server-data/server.cfg"
-cd ..
-chmod -R 777 ./*
+if [ "PAPA" != "oui" ]; then
+	echo -e "On n'y va !"
+else
+	exit 0
+fi
 
 #Install docker
 #curl -fsSL get.docker.com -o get-docker.sh && sh get-docker.sh
 #wget https://raw.githubusercontent.com/Server0CB/script_gta/master/docker-compose.yml
 #docker-compose up -d
 
+if [ $1 = $1]; then
+	cd "/home/$USER/"
+	wget "${masterfolder}""${newestfxdata}fx.tar.xz"
+	tar xf fx.tar.xz && rm -rf fx.tar.xz
+    git clone https://github.com/citizenfx/cfx-server-data.git server-data
+    wget https://raw.githubusercontent.com/Server0CB/script_gta/master/server.cfg server.cfg
+    mv "/home/$USER/server.cfg" "/home/$USER/server-data/server.cfg"
+    cd .. || exit
+fi
+#Permission au fichier
+	chown -R "$USER":"$USER" /home/"$USER"
+	chown "$USER":"$USER" /home/"$USER"
+	chmod 755 /home/"$USER"
+echo "Base de FiveM fini"
+
+#Ressource mysql 
 mkdir "/home/$USER/server-data/resources/[MySQL]"
 cd   "/home/$USER/server-data/resources/[MySQL]"
-wget https://github.com/brouznouf/fivem-mysql-async/archive/v2.0.2.zip
+git clone https://github.com/brouznouf/fivem-mysql-async.git mysql-async
 wget https://kanersps.pw/files/essential5.zip
 wget https://kanersps.pw/files/esplugin_mysql.zip
 git clone https://github.com/ESX-Org/async.git async
-unzip v2.0.2.zip
-unzip essential5.zip
-unzip esplugin_mysql.zip
-rm -rf v2.0.2.zip
-rm -rf essential5.zip
-rm -rf esplugin_mysql.zip
-mv fivem-mysql-async-2.0.2/ mysql-async/
+unzip essential5.zip && unzip esplugin_mysql.zip
 
-
+#Ressource dans les dossier de base 
 mkdir "/home/$USER/server-data/resources/[UI]"
 cd  "/home/$USER/server-data/resources/[UI]"
 git clone https://github.com/ESX-Org/es_extended.git es_extended
@@ -116,10 +106,28 @@ git clone https://github.com/ESX-Org/esx_menu_default.git esx_menu_default
 git clone https://github.com/ESX-Org/esx_menu_dialog.git esx_menu_dialog
 git clone https://github.com/ESX-Org/esx_menu_list.git esx_menu_list
 
+clear
+echo -e "/!\ Instalation de mysql-server /!\ Choisiez oui ou non ?"
+read -r confir 
+echo -e ""
+if [ "confir" != "oui" ]; then
+	echo -e "On lance l'install de mysql"
+else
+	exit 0
+fi
+echo -n " Entrez Un mot de passe pour mysql-server : " 
+read password
+export DEBIAN_FRONTEND=noninteractive
+debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password password PASS'
+debconf-set-selections <<< 'mariadb-server-10.0 mysql-server/root_password_again password PASS'
+apt-get install -y mariadb-server
+mysql -uroot -pPASS -e "SET PASSWORD = PASSWORD('');"
+echo -e "\ny\ny\nabc\nabc\ny\ny\ny\ny" | /usr/bin/mysql_secure_installation
+
 
 echo '-------------------------------------------------------------------------------------------------'
 echo
-echo "Installation terminer vous avez votre base de fiveM avec mysql phpmyadmin !" 
+echo "Installation terminer vous avez votre base de fiveM avec mysql !" 
 echo "Votre nom d'utilisateur est $USER N'oubliez pas de lancer FiveM avec cette utilisateur !"
 echo
 echo
@@ -136,7 +144,4 @@ echo
 echo
 echo "Toute question rejoignez discord sur https://ocb.re !"
 echo
-echo "regardez dans le dossier /home/$USER/server-data/ressource/\\[MySQL\\]/ est rajoutez la sql ! esplugin_mysql"
-echo "n'oubliez pas de rensiegnez les sql !"
-echo "https://github.com/ESX-Org/es_extended/blob/master/es_extended.sql"
 echo "---------------------------------------------------------------------------------------------------"
