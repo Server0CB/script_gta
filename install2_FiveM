@@ -1,0 +1,205 @@
+#!/bin/bash
+#V0.5
+#https://ocb.re rejoignez le discord !
+#####
+CSI="\033["
+CEND="${CSI}0m"
+CRED="${CSI}1;31m"
+CGREEN="${CSI}1;32m"
+CYELLOW="${CSI}1;33m"
+CBLUE="${CSI}1;34m"
+#####
+PUBLIC_IP=$(command wget -qO- 'http://ipecho.net/plain')
+LOGFILE=/root/installlog.txt
+
+#Update de base
+apt update && apt dist-upgrade -y
+apt install git wget curl xz-utils screen unzip  -y
+apt update
+apt-get autoremove -y
+
+#Seul root peut executer le script
+if [ $UID -ne 0 ] ; then
+        echo "Vous devez etre root pour executer ce script"
+        exit 1
+fi
+## Generate locales
+locale-gen fr_FR.UTF-8
+dpkg-reconfigure locales
+
+#Artefact FiveM
+masterfolder="https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/"
+newestfxdata="$(curl $masterfolder | grep '<a href' | tail -1 | awk -F[\>\<] '{print $3}')"
+clear
+echo -e "${CBLUE} On va crées un nouvelle utilisateur pour lancer notre serveur par la suite ! $CEND"
+con=0
+while [ $con -eq 0 ]; do
+	echo -n " Enter le nom d'utilisateur :"
+	read USER
+
+	if [ -z "$USER" ]; then
+		echo "Error: déjà enregistré!!"
+	elif [ -z $(cat /etc/passwd | grep "^$USER:") ]; then
+		read -p "la selection ($USER) n'existe pas voulez le vous le crées? [Y/n/c] " confirm
+		if [[ $confirm =~ ^([nN]|[cC])$ ]]
+        then
+            exit 1
+        else
+			adduser $USER;
+			con=1
+			HOMEDIR=$(cat /etc/passwd | grep "$USER": | cut -d: -f6);
+		fi
+	elif [ $(cat /etc/passwd | grep "^$USER:" | cut -d: -f3) -lt 999 ]; then
+		echo "$Error: le UID existe déjà!"
+	elif [ $USER = nobody ]; then
+		echo
+		echo "$Error: l'user 'nobody' ne peux être selectioner"
+	else
+		HOMEDIR=$(cat /etc/passwd | grep "$USER": | cut -d: -f6);
+		con=1
+	fi
+done
+clear
+echo -e " "
+echo -e "/!\ On va commencer par installer la base de FiveM /!\ "
+echo -e " "
+echo -e "Marquer oui pour lancer le script !"
+read -r PAPA
+echo -e " "
+clear
+
+if [ "PAPA" != "oui" ]; then
+	echo -e "On n'y va !"
+	cd "/home/$USER/"
+	wget "${masterfolder}""${newestfxdata}fx.tar.xz"
+	tar xf fx.tar.xz && rm -rf fx.tar.xz
+    git clone https://github.com/citizenfx/cfx-server-data.git server-data
+    wget https://raw.githubusercontent.com/Server0CB/script_gta/master/server.cfg server.cfg
+    mv "/home/$USER/server.cfg" "/home/$USER/server-data/server.cfg"
+    cd .. || exit
+    chown -R "$USER":"$USER" /home/"$USER"
+	chown "$USER":"$USER" /home/"$USER"
+	chmod 755 /home/"$USER"
+echo "Base de FiveM fini"
+else
+	exit 0
+fi
+clear
+echo -e " "
+echo -e "${CBLUE} /!\ On va commancer l'installation de mariadb pour la partie SQL du serveur ${CEND} "
+echo -e " "
+echo -e " Marquer oui pour lancer l'installation"
+read -r con
+echo -e " "
+
+if [ "con" != "oui" ]; then
+	echo -e "On n'y va"
+MYSQLPASSWORD=
+while [[ $MYSQLPASSWORD = "" ]]; do
+   read -p "Entrez un mot de passe pour votre base root mysql:" MYSQLPASSWORD
+done
+
+WPUSER=
+while [[ $WPUSER = "" ]]; do
+   read -p "Entrez un nom d'utilisateur pour la base Mysql FiveM : " WPUSER
+done
+
+WPPWD=
+while [[ $WPPWD = "" ]]; do
+   read -p "Entrez le mot de passe pour votre base de donné FiveM : " WPPWD
+done
+echo "mariadb-server-10.1 mariadb-server/root_password password root" |  debconf-set-selections
+echo "mariadb-server-10.1 mariadb-server/root_password_again password root" | debconf-set-selections
+apt-get -y install mariadb-server-10.1  >> $LOGFILE 2>&1
+mysql -u root -proot -e "use mysql; UPDATE user SET authentication_string=PASSWORD('$MYSQLPASSWORD') WHERE User='root'; flush privileges;" >> $LOGFILE 2>&1
+echo -e "\ny\ny\nabc\nabc\ny\ny\ny\ny" | /usr/bin/mysql_secure_installation
+mysql -u root -p$MYSQLPASSWORD <<MYSQL_SCRIPT 
+CREATE DATABASE essentialmode DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+GRANT ALL ON essentialmode.* TO '$WPUSER'@'localhost' IDENTIFIED BY '$WPPWD';
+FLUSH PRIVILEGES;
+MYSQL_SCRIPT
+
+else
+	exit 0
+fi
+
+clear
+echo -e " "
+echo -e " ${CBLUE} /!\ On va installer la partie serveur web Nginx+PHP ${CEND} "
+echo -e " "
+echo -e " Marquer oui pour lancer le script"
+read -r co
+echo -e " "
+
+if [ "co" != "oui" ]; then
+	echo -e "On va lancer l'install"
+
+
+else
+	exit 0
+fi
+
+
+echo -e " "
+echo -e " "
+echo -e "Voulez vous enregistré les ressources essentialmode mysql-async esplugin_mysql /répondé oui / "
+read -r aq
+if [ "aq" != "oui" ]; then
+	echo -e "On va lancer les install"
+	mkdir "/home/$USER/server-data/resources/[MySQL]"
+	cd  "/home/$USER/server-data/resources/[MySQL]"
+		git clone https://github.com/brouznouf/fivem-mysql-async.git mysql-async
+
+		wget https://kanersps.pw/files/essential5.zip
+		unzip essential5.zip 
+
+		wget https://kanersps.pw/files/esplugin_mysql.zip
+		unzip esplugin_mysql.zip
+
+		git clone https://github.com/ESX-Org/async.git async
+
+else
+
+	exit 0
+fi
+
+echo -e " "
+echo -e " "
+echo -e " Voulez vous rajouter les UI: es_extended esx_menu_default dialog list ? / Marquer oui / "
+read -r as
+
+if [ "as" != "oui" ]; then
+
+mkdir "/home/$USER/server-data/resources/[UI]"
+cd  "/home/$USER/server-data/resources/[UI]"
+	git clone https://github.com/ESX-Org/es_extended.git es_extended
+    git clone https://github.com/ESX-Org/esx_menu_default.git esx_menu_default
+	git clone https://github.com/ESX-Org/esx_menu_dialog.git esx_menu_dialog
+	git clone https://github.com/ESX-Org/esx_menu_list.git esx_menu_list
+
+else
+	exit 0
+fi
+
+
+clear
+echo -e "${CBLUE}----------------------------------------------
+
+Instalation de FiveM terminer 
+Les logs file $LOGFILE
+
+1) Votre IP du serveur = "$PUBLIC_IP"
+2)Votre nom d'utilisateur mysql : "$WPUSER"
+3)Votre password de la mysql : "$WPPWD"
+
+-----------------------------------------------------
+Pour lancer votre serveur il faut :
+Faut faire un su "$USER"
+puis un cd /home/"$USER"/server-data
+puis bash /home/"$USER"/run.sh +exec server.cfg
+
+Merci de visitez https://ocb.re pour toute question :) 
+
+------------------------------------------------------${CEND}"
+
+ #setgrsetgroup [id] superadmin
